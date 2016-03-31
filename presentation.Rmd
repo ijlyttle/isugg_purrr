@@ -1,5 +1,5 @@
 ---
-title: "Using purrr: weird data-frames\nhttp://ijlyttle.github.io/isugg_purrr/presentation.html"
+title: "Using purrr: weird data-frames - http://ijlyttle.github.io/isugg_purrr/presentation.html - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
 author: "Ian Lyttle, Schneider Electric"
 date: "March 30, 2016"
 output: slidy_presentation
@@ -336,7 +336,7 @@ model_nested_new <-
 - using `map(model, is.null)` returns a list column
 - to use `filter()`, we have to escape the weirdness
 
-## Step: `map_lgl()` get out of the weirdness
+## Step: `map_lgl()` to identify nulls and get out of the weirdness
 
 ```{r}
 model_nested_new <-

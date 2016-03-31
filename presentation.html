@@ -7,7 +7,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Ian Lyttle, Schneider Electric" />
   <meta name="date" content="2016-03-30" />
-  <title>Using purrr: weird data-frames http://ijlyttle.github.io/isugg_purrr/presentation.html</title>
+  <title>Using purrr: weird data-frames - http://ijlyttle.github.io/isugg_purrr/presentation.html - source</title>
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 div.sourceCode { overflow-x: auto; }
@@ -51,7 +51,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </head>
 <body>
 <div class="slide titlepage">
-  <h1 class="title">Using purrr: weird data-frames <a href="http://ijlyttle.github.io/isugg_purrr/presentation.html" class="uri">http://ijlyttle.github.io/isugg_purrr/presentation.html</a></h1>
+  <h1 class="title">Using purrr: weird data-frames - <a href="http://ijlyttle.github.io/isugg_purrr/presentation.html" class="uri">http://ijlyttle.github.io/isugg_purrr/presentation.html</a> - <a href="http://ijlyttle.github.io/isugg_purrr/presentation.Rmd">source</a></h1>
   <p class="author">
 Ian Lyttle, Schneider Electric
   </p>
@@ -490,8 +490,8 @@ Groups: id_sensor [3]
 <li>to use <code>filter()</code>, we have to escape the weirdness</li>
 </ul>
 </div>
-<div id="step-map_lgl-get-out-of-the-weirdness" class="slide section level2">
-<h1>Step: <code>map_lgl()</code> get out of the weirdness</h1>
+<div id="step-map_lgl-to-identify-nulls-and-get-out-of-the-weirdness" class="slide section level2">
+<h1>Step: <code>map_lgl()</code> to identify nulls and get out of the weirdness</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_nested_new &lt;-
 <span class="st">  </span>list_model %&gt;%
 <span class="st">  </span><span class="kw">map_df</span>(fn_model, delta_nested, <span class="dt">.id =</span> <span class="st">&quot;id_model&quot;</span>) %&gt;%
