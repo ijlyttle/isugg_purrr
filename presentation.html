@@ -313,7 +313,7 @@ Groups: id_sensor [3]
 <p>Here’s where the fun starts - a column of a data-frame can be a list.</p>
 <ul>
 <li><p>use <code>tidyr::nest()</code> to makes a column <code>data</code>, which is a list of data-frames</p></li>
-<li><p>this seems like a stronger expression of the <code>group_by()</code> idea in dplyr</p></li>
+<li><p>this seems like a stronger expression of the <code>dplyr::group_by()</code> idea</p></li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta_nested &lt;-<span class="st"> </span>
 <span class="st">  </span>delta %&gt;%
@@ -330,8 +330,8 @@ Groups: id_sensor [3]
 <div id="map-data-frames-to-the-modeling-function" class="slide section level2">
 <h1>Map data-frames to the modeling function</h1>
 <ul>
-<li><p><code>map</code> is like <code>lapply</code></p></li>
-<li><p><code>map</code> returns a list-column (it keeps the weirdness)</p></li>
+<li><p><code>map()</code> is like <code>lapply()</code></p></li>
+<li><p><code>map()</code> returns a list-column (it keeps the weirdness)</p></li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_nested &lt;-
 <span class="st">  </span>delta_nested %&gt;%
@@ -346,10 +346,10 @@ Groups: id_sensor [3]
 3         c &lt;tbl_df [327,2]&gt; &lt;S3:nls&gt;</code></pre>
 </div>
 <div id="we-can-use-map2-to-make-the-predictions" class="slide section level2">
-<h1>We can use map2 to make the predictions</h1>
+<h1>We can use <code>map2()</code> to make the predictions</h1>
 <ul>
-<li><p><code>map2</code> is like <code>mapply</code></p></li>
-<li><p>designed to map two colunms (<code>model</code>, <code>data</code>) to a function <code>predict</code></p></li>
+<li><p><code>map2()</code> is like <code>mapply()</code></p></li>
+<li><p>designed to map two colunms (<code>model</code>, <code>data</code>) to a function <code>predict()</code></p></li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predict_nested &lt;-
 <span class="st">  </span>model_nested %&gt;%
@@ -366,7 +366,7 @@ Groups: id_sensor [3]
 <div id="we-need-to-get-out-of-the-weirdness" class="slide section level2">
 <h1>We need to get out of the weirdness</h1>
 <ul>
-<li>use <code>unnest</code> to get back to a regular data-frame</li>
+<li>use <code>unnest()</code> to get back to a regular data-frame</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predict_unnested &lt;-<span class="st"> </span>
 <span class="st">  </span>predict_nested %&gt;%
@@ -438,11 +438,11 @@ Groups: id_sensor [3]
   df
 }</code></pre></div>
 <ul>
-<li>the purrr functions <code>safely</code> and <code>possibly</code> are <strong>very</strong> interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.</li>
+<li>the purrr functions <code>safely()</code> and <code>possibly()</code> are <strong>very</strong> interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.</li>
 </ul>
 </div>
 <div id="step-map_df-to-build-the-models" class="slide section level2">
-<h1>Step: <code>map_df</code> to build the models</h1>
+<h1>Step: <code>map_df()</code> to build the models</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_nested_new &lt;-
 <span class="st">  </span>list_model %&gt;%
 <span class="st">  </span><span class="kw">map_df</span>(fn_model, delta_nested, <span class="dt">.id =</span> <span class="st">&quot;id_model&quot;</span>) %&gt;%
@@ -552,7 +552,7 @@ Groups: id_sensor [3]
 6 semi_infinite_simple         c &lt;tbl_df [327,2]&gt; &lt;S3:nls&gt; &lt;dbl[327]&gt;</code></pre>
 </div>
 <div id="unnest-make-it-tall" class="slide section level2">
-<h1>unnest(), make it tall</h1>
+<h1><code>unnest()</code>, make it tall</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predict_tall &lt;-
 <span class="st">  </span>predict_nested %&gt;%
 <span class="st">  </span><span class="kw">unnest</span>(data, pred) %&gt;%<span class="st"> </span>

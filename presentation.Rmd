@@ -220,7 +220,7 @@ Here's where the fun starts - a column of a data-frame can be a list.
 
 - use `tidyr::nest()` to makes a column `data`, which is a list of data-frames
 
-- this seems like a stronger expression of the `group_by()` idea in dplyr
+- this seems like a stronger expression of the `dplyr::group_by()` idea 
 
 ```{r}
 delta_nested <- 
@@ -231,9 +231,9 @@ delta_nested <-
 
 ## Map data-frames to the modeling function
 
-- `map` is like `lapply`
+- `map()` is like `lapply()`
 
-- `map` returns a list-column (it keeps the weirdness)
+- `map()` returns a list-column (it keeps the weirdness)
 
 ```{r}
 model_nested <-
@@ -242,11 +242,11 @@ model_nested <-
   print()
 ```
 
-## We can use map2 to make the predictions
+## We can use `map2()` to make the predictions
 
-- `map2` is like `mapply`
+- `map2()` is like `mapply()`
 
-- designed to map two colunms (`model`, `data`) to a function `predict`
+- designed to map two colunms (`model`, `data`) to a function `predict()`
 
 ```{r}
 predict_nested <-
@@ -257,7 +257,7 @@ predict_nested <-
 
 ## We need to get out of the weirdness
 
-- use `unnest` to get back to a regular data-frame
+- use `unnest()` to get back to a regular data-frame
 
 ```{r}
 predict_unnested <- 
@@ -309,9 +309,9 @@ fn_model <- function(.model, df){
 }
 ```
 
-- the purrr functions `safely` and `possibly` are **very** interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.
+- the purrr functions `safely()` and `possibly()` are **very** interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.
 
-## Step: `map_df` to build the models
+## Step: `map_df()` to build the models
 
 ```{r}
 model_nested_new <-
@@ -369,7 +369,7 @@ predict_nested <-
   print()
 ```
 
-## unnest(), make it tall
+## `unnest()`, make it tall
 
 ```{r}
 predict_tall <-
