@@ -1,0 +1,275 @@
+---
+title: "Untitled"
+author: "Ian Lyttle"
+date: "March 27, 2016"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(comment = "", echo = TRUE)
+```
+
+## Functional programming using `purrr`
+
+```{r packages, message=FALSE, warning=FALSE}
+library("readr")
+library("tibble")
+library("dplyr")
+library("tidyr")
+library("stringr")
+library("ggplot2")
+library("purrr")
+library("broom")
+```
+
+## Let's get the the data into shape
+
+```{r load}
+temperature_wide <- 
+  read_csv("temperature.csv") %>%
+  print()
+```
+
+## Is `temperarure_wide` "tidy"?
+
+```{r is_tidy, echo=FALSE}
+print(temperature_wide)
+```
+
+Why or why not?
+
+## Tidy data
+
+1. Each column is a variable
+2. Each row is an observation
+3. Each cell is a value
+
+(http://www.jstatsoft.org/v59/i10/paper)
+
+My personal observation is that "tidy" can depend on the context, on what you want to do with the data.
+
+## Let's get this into a tidy form
+
+```{r}
+temperature_tall <-
+  temperature_wide %>%
+  gather(key = "id_sensor", value = "temperature", starts_with("temp")) %>%
+  mutate(id_sensor = str_replace(id_sensor, "temperature_", "")) %>%
+  print()
+```
+
+## Now, it's easier to visulaize
+
+```{r}
+temperature_tall %>%
+  ggplot(aes(x = instant, y = temperature, color = id_sensor)) +
+  geom_line()
+```
+
+## Rearrange a bit more
+
+**`delta_time`** $\Delta t$ 
+
+chance in time since event started, s
+
+**`delta_temperature`**: $\Delta T$
+
+change in temperature since event started, °C
+
+```{r}
+delta <- 
+  temperature_tall %>%
+  arrange(id_sensor, instant) %>%
+  group_by(id_sensor) %>%
+  mutate(
+    delta_time = as.numeric(instant) - as.numeric(instant[[1]]),
+    delta_temperature = temperature - temperature[[1]]
+  ) %>%
+  select(id_sensor, delta_time, delta_temperature)
+```
+
+## Let's have a look
+
+```{r}
+delta %>%
+  ggplot(aes(x = delta_time, y = delta_temperature, color = id_sensor)) +
+  geom_line()  
+```
+
+## Curve-fitting
+
+We want to see how three different curve-fits might perform on these three data-sets:
+
+### Newtonian cooling
+
+\[\Delta T = \Delta {T_0} \left[ 1 - \exp \left( { - \frac{{\Delta t}}{{{\tau _0}}}} \right) \right] \]
+
+### Semi-infinite solid
+
+\[\Delta T = \Delta {T_0}\operatorname{erfc} \left( {\sqrt {\frac{{{\tau _0}}}{{\Delta t}}} } \right)\]
+
+### Semi-infinite solid with convection
+
+\[\Delta T = \Delta {T_0}\left[ {\operatorname{erfc} \left( {\sqrt {\frac{{{\tau _0}}}{{\Delta t}}} } \right) - \exp \left( {B{i_0} + \frac{{Bi_0^2}}{4}\frac{{\Delta t}}{{{\tau _0}}}} \right)\operatorname{erfc} \left( {\sqrt {\frac{{{\tau _0}}}{{\Delta t}}}  + \frac{{Bi_0^{}}}{2}\sqrt {\frac{{\Delta t}}{{{\tau _0}}}} } \right)} \right]\]
+
+## Some definitions
+
+```{r}
+# reference: http://stackoverflow.com/questions/29067916/r-error-function-erfz
+# (see Abramowitz and Stegun 29.2.29)
+erf <- function(x) 2 * pnorm(x * sqrt(2)) - 1
+erfc <- function(x) 2 * pnorm(x * sqrt(2), lower = FALSE)
+```
+
+```{r}
+newton_cooling <- function(x) {
+  nls(
+    delta_temperature ~ delta_temperature_0*(1 - exp(-delta_time/tau_0)),
+    start = list(delta_temperature_0 = -10, tau_0 = 50),
+    data = x
+  )
+}
+```
+
+## More math
+
+```{r}
+semi_infinite_simple <- function(x) {
+  nls(
+    delta_temperature ~ delta_temperature_0*erfc(sqrt(tau_0/delta_time)),
+    start = list(delta_temperature_0 = -10, tau_0 = 50),
+    data = x
+  )    
+}
+
+semi_infinite_convection <- function(x){
+  nls(
+    delta_temperature ~
+      delta_temperature_0*(
+       erfc(sqrt(tau_0/delta_time)) -
+         exp(Bi_0 + (Bi_0/2)^2 * delta_time/tau_0) *
+         erfc(sqrt(tau_0/delta_time) + (Bi_0/2) * sqrt(delta_time/tau_0))
+      ),
+    start = list(delta_temperature_0 = -5, tau_0 = 50, Bi_0 = 1.e6),
+    data = x
+  )
+}
+```
+
+## Before we get into purrr
+
+Before doing anything, we want to show that we can do something with one dataset and one model-function:
+
+```{r}
+tmp_data <- delta %>% filter(id_sensor == "a")
+
+tmp_model <- newton_cooling(tmp_data)
+
+summary(tmp_model)
+```
+
+## Look at predictions
+
+```{r}
+tmp_pred <- 
+  tmp_data %>%
+  mutate(modeled = predict(tmp_model, data = .)) %>%
+  select(id_sensor, delta_time, measured = delta_temperature, modeled) %>%
+  gather("type", "delta_temperature", measured:modeled) %>%
+  print()
+```
+
+## A more-useful look
+
+```{r}
+tmp_pred %>%
+  ggplot(aes(x = delta_time, y = delta_temperature, linetype = type)) +
+  geom_line()
+```
+
+## Apply *this* model to all data
+
+Here's where the fun starts:
+
+```{r}
+delta_nested <- 
+  delta %>%
+  nest(-id_sensor) %>%
+  print()
+```
+
+## We can make the models
+
+```{r}
+model_nested <-
+  delta_nested %>%
+  mutate(model = map(data, newton_cooling)) %>%
+  print()
+```
+
+## We can make the predictions
+
+```{r}
+predict_nested <-
+  model_nested %>%
+  mutate(pred = map2(model, data, predict)) %>%
+  print()
+```
+
+## We can extract the predictions
+
+```{r}
+predict_unnested <- 
+  predict_nested %>%
+  unnest(data, pred) %>% 
+  print()
+```
+
+## We can wrangle the predictions
+
+```{r}
+predict_tall <- 
+  predict_unnested %>%
+  rename(modeled = pred, measured = delta_temperature) %>%
+  gather("type", "delta_temperature", modeled, measured) %>%
+  print()
+```
+
+##  We can visualize the predictions
+
+```{r}
+predict_tall %>%
+  ggplot(aes(x = delta_time, y = delta_temperature)) +
+  geom_line(aes(color = id_sensor, linetype = type))
+```
+
+## Now we want to look at a selection of models
+
+```{r}
+list_model <-
+  list(
+    newton_cooling = newton_cooling,
+    semi_infinite_simple = semi_infinite_simple,
+    semi_infinite_convection = semi_infinite_convection
+  )
+```
+
+```{r}
+fn_model <- function(.model, df){
+  # safer to avoid non-standard evaluation
+  # df %>% mutate(model = map(data, .model)) 
+  
+  df$model <- map(df$data, possibly(.model, NULL))
+  df
+}
+
+model_nested_new <-
+  list_model %>%
+  map_df(fn_model, delta_nested, .id = "id_model") %>%
+  mutate(is_null = map_lgl(model, is.null)) %>%
+  print() %>%
+  filter(!is_null) %>%
+  select(-is_null) %>%
+  print()
+```
+
