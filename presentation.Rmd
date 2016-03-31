@@ -245,6 +245,8 @@ predict_tall %>%
 
 ## Now we want to look at a selection of models
 
+Make a list of functions to model:
+
 ```{r}
 list_model <-
   list(
@@ -262,14 +264,46 @@ fn_model <- function(.model, df){
   df$model <- map(df$data, possibly(.model, NULL))
   df
 }
+```
 
+## Do it!
+
+
+```{r}
 model_nested_new <-
   list_model %>%
   map_df(fn_model, delta_nested, .id = "id_model") %>%
   mutate(is_null = map_lgl(model, is.null)) %>%
-  print() %>%
   filter(!is_null) %>%
   select(-is_null) %>%
   print()
 ```
 
+## Let's get predictions
+
+```{r}
+predict_nested <- 
+  model_nested_new %>%
+  mutate(pred = map2(model, data, predict)) %>%
+  print()
+```
+
+## Make it tall
+
+```{r}
+predict_tall <-
+  predict_nested %>%
+  unnest(data, pred) %>% 
+  rename(modeled = pred, measured = delta_temperature) %>%
+  gather("type", "delta_temperature", modeled, measured) %>%
+  print()
+```
+
+##  We can visualize the predictions
+
+```{r}
+predict_tall %>%
+  ggplot(aes(x = delta_time, y = delta_temperature)) +
+  geom_line(aes(color = id_sensor, linetype = type)) +
+  facet_grid(id_model ~ .)
+```
