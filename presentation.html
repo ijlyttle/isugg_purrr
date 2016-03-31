@@ -422,8 +422,8 @@ Groups: id_sensor [1]
 5 semi_infinite_simple         b &lt;tbl_df [327,2]&gt; &lt;S3:nls&gt; &lt;dbl[327]&gt;
 6 semi_infinite_simple         c &lt;tbl_df [327,2]&gt; &lt;S3:nls&gt; &lt;dbl[327]&gt;</code></pre>
 </div>
-<div id="make-it-tall" class="slide section level2">
-<h1>Make it tall</h1>
+<div id="unnest-make-it-tall" class="slide section level2">
+<h1>Unnest, make it tall</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predict_tall &lt;-
 <span class="st">  </span>predict_nested %&gt;%
 <span class="st">  </span><span class="kw">unnest</span>(data, pred) %&gt;%<span class="st"> </span>

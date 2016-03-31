@@ -288,7 +288,7 @@ predict_nested <-
   print()
 ```
 
-## Make it tall
+## Unnest, make it tall
 
 ```{r}
 predict_tall <-
