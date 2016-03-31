@@ -1,7 +1,7 @@
 ---
-title: "Untitled"
-author: "Ian Lyttle"
-date: "March 27, 2016"
+title: "Using purrr: weird data-frames\nhttp://ijlyttle.github.io/isugg_purrr/presentation.html"
+author: "Ian Lyttle, Schneider Electric"
+date: "March 30, 2016"
 output: slidy_presentation
 ---
 
@@ -9,7 +9,7 @@ output: slidy_presentation
 knitr::opts_chunk$set(comment = "", echo = TRUE)
 ```
 
-## Functional programming using `purrr`
+## Packages to run this presentation
 
 ```{r packages, message=FALSE, warning=FALSE}
 library("readr")
@@ -22,7 +22,25 @@ library("purrr")
 library("broom")
 ```
 
+## Motivation
+
+We have a dataset: 
+
+- you can [view](https://github.com/ijlyttle/isugg_purrr/blob/gh-pages/temperature.csv) or [download](http://ijlyttle.github.io/isugg_purrr/temperature.csv)
+
+- you can download the [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd) of this presentation
+
+- these are three temperatures recorded simultaneously in a piece of electronics
+
+- it will be very valuable to be able to characterize the transient temperature for each sensor
+
+- we want to apply the same set of models across all three sensors
+
+- it will be easier to show using pictures
+
 ## Let's get the the data into shape
+
+Using the readr package
 
 ```{r load}
 temperature_wide <- 
@@ -146,9 +164,10 @@ semi_infinite_convection <- function(x){
   nls(
     delta_temperature ~
       delta_temperature_0*(
-       erfc(sqrt(tau_0/delta_time)) -
-         exp(Bi_0 + (Bi_0/2)^2 * delta_time/tau_0) *
-         erfc(sqrt(tau_0/delta_time) + (Bi_0/2) * sqrt(delta_time/tau_0))
+        erfc(sqrt(tau_0/delta_time)) -
+        exp(Bi_0 + (Bi_0/2)^2*delta_time/tau_0)*
+          erfc(sqrt(tau_0/delta_time) + 
+        (Bi_0/2)*sqrt(delta_time/tau_0))
       ),
     start = list(delta_temperature_0 = -5, tau_0 = 50, Bi_0 = 1.e6),
     data = x
@@ -187,9 +206,21 @@ tmp_pred %>%
   geom_line()
 ```
 
-## Apply *this* model to all data
+## "Regular" data-frame
 
-Here's where the fun starts:
+```{r}
+print(delta)
+```
+
+Each column of the dataframe is a vector - in this case, a character vector and two doubles
+
+## How to make a weird data-frame
+
+Here's where the fun starts - a column of a data-frame can be a list.
+
+- use `tidyr::nest()` to makes a column `data`, which is a list of data-frames
+
+- this seems like a stronger expression of the `group_by()` idea in dplyr
 
 ```{r}
 delta_nested <- 
@@ -198,7 +229,11 @@ delta_nested <-
   print()
 ```
 
-## We can make the models
+## Map data-frames to the modeling function
+
+- `map` is like `lapply`
+
+- `map` returns a list-column (it keeps the weirdness)
 
 ```{r}
 model_nested <-
@@ -207,7 +242,11 @@ model_nested <-
   print()
 ```
 
-## We can make the predictions
+## We can use map2 to make the predictions
+
+- `map2` is like `mapply`
+
+- designed to map two colunms (`model`, `data`) to a function `predict`
 
 ```{r}
 predict_nested <-
@@ -216,7 +255,9 @@ predict_nested <-
   print()
 ```
 
-## We can extract the predictions
+## We need to get out of the weirdness
+
+- use `unnest` to get back to a regular data-frame
 
 ```{r}
 predict_unnested <- 
@@ -226,6 +267,8 @@ predict_unnested <-
 ```
 
 ## We can wrangle the predictions
+
+- get into a form that makes it easier to plot
 
 ```{r}
 predict_tall <- 
@@ -266,8 +309,46 @@ fn_model <- function(.model, df){
 }
 ```
 
-## Do it!
+- the purrr functions `safely` and `possibly` are **very** interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.
 
+## Step: `map_df` to build the models
+
+```{r}
+model_nested_new <-
+  list_model %>%
+  map_df(fn_model, delta_nested, .id = "id_model") %>%
+  print()
+```
+
+- we want to discard the rows where the model failed
+- we also want to investigate why they failed, but that's a different talk
+
+## Step: `map()` to identify the null models
+
+```{r}
+model_nested_new <-
+  list_model %>%
+  map_df(fn_model, delta_nested, .id = "id_model") %>%
+  mutate(is_null = map(model, is.null)) %>%
+  print()
+```
+
+- using `map(model, is.null)` returns a list column
+- to use `filter()`, we have to escape the weirdness
+
+## Step: `map_lgl()` get out of the weirdness
+
+```{r}
+model_nested_new <-
+  list_model %>%
+  map_df(fn_model, delta_nested, .id = "id_model") %>%
+  mutate(is_null = map_lgl(model, is.null)) %>%
+  print()
+```
+
+- using `map_lgl(model, is.null)` returns a vector column
+
+## Step: `filter()` and `select()` to clean up
 
 ```{r}
 model_nested_new <-
@@ -288,7 +369,7 @@ predict_nested <-
   print()
 ```
 
-## Unnest, make it tall
+## unnest(), make it tall
 
 ```{r}
 predict_tall <-
@@ -307,3 +388,33 @@ predict_tall %>%
   geom_line(aes(color = id_sensor, linetype = type)) +
   facet_grid(id_model ~ .)
 ```
+
+## Using broom package to look at model-statistics
+
+The `tidy()` function extracts statistics from the model
+
+```{r}
+model_parameters <- 
+  model_nested_new %>%
+  select(id_model, id_sensor, model) %>%
+  mutate(tidy = map(model, tidy)) %>%
+  select(-model) %>%
+  unnest() %>%
+  print()
+```
+
+## Get a sense of the coefficients
+
+```{r}
+model_summary <-
+  model_parameters %>%
+  select(id_model, id_sensor, term, estimate) %>%
+  spread(key = "term", value = "estimate") %>%
+  print()
+```
+
+## Summary
+
+- this is just a smalll part of purrr
+- there seem to be parallels between `tidyr::nest()/purrr::map()` and `dplyr::group_by()/dplyr::do()`
+    - to my mind, the purrr framework is more understandable
