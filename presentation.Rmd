@@ -42,7 +42,7 @@ I figure a good way to learn a new package is to try to solve a problem, so we h
 
 - it will be easier to show using pictures
 
-## Let's get the the data into shape
+## Let's get the data into shape
 
 Using the readr package
 
