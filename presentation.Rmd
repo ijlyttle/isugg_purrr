@@ -303,6 +303,8 @@ list_model <-
   )
 ```
 
+## Step: write a function to define the "inner" loop 
+
 ```{r}
 fn_model <- function(.model, df){
   # safer to avoid non-standard evaluation
@@ -313,9 +315,11 @@ fn_model <- function(.model, df){
 }
 ```
 
-- the purrr functions `safely()` and `possibly()` are **very** interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.
+- for a given model-function and a given (weird) data-frame, return a modified version of that data-frame with a column `model`, which is the model-function applied to each element of the data-frame's `data` column (which is itself a list of data-frames)
 
-## Step: `map_df()` to build the models
+- the purrr functions `safely()` and `possibly()` are **very** interesting. I think they could be useful outside of purrr as a friendlier way to do error-handling.
+
+## Step: `map_df()` to define the "outer" loop
 
 ```{r}
 model_nested_new <-
@@ -323,6 +327,8 @@ model_nested_new <-
   map_df(fn_model, delta_nested, .id = "id_model") %>%
   print()
 ```
+
+- for each element of a list of model-functions, run the inner-loop function, and row-bind the results into a data-frame
 
 - we want to discard the rows where the model failed
 - we also want to investigate why they failed, but that's a different talk
@@ -395,7 +401,7 @@ predict_tall %>%
 
 ## Using broom package to look at model-statistics
 
-The `tidy()` function extracts statistics from the model
+The `tidy()` function extracts statistics from a model
 
 ```{r}
 model_parameters <- 

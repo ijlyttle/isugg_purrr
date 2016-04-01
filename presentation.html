@@ -81,8 +81,8 @@ Ian Lyttle, Schneider Electric
 <li><p>it will be easier to show using pictures</p></li>
 </ul>
 </div>
-<div id="lets-get-the-the-data-into-shape" class="slide section level2">
-<h1>Let’s get the the data into shape</h1>
+<div id="lets-get-the-data-into-shape" class="slide section level2">
+<h1>Let’s get the data into shape</h1>
 <p>Using the readr package</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">temperature_wide &lt;-<span class="st"> </span>
 <span class="st">  </span><span class="kw">read_csv</span>(<span class="st">&quot;temperature.csv&quot;</span>) %&gt;%
@@ -431,6 +431,9 @@ Groups: id_sensor [3]
     <span class="dt">semi_infinite_simple =</span> semi_infinite_simple,
     <span class="dt">semi_infinite_convection =</span> semi_infinite_convection
   )</code></pre></div>
+</div>
+<div id="step-write-a-function-to-define-the-inner-loop" class="slide section level2">
+<h1>Step: write a function to define the “inner” loop</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fn_model &lt;-<span class="st"> </span>function(.model, df){
   <span class="co"># safer to avoid non-standard evaluation</span>
   <span class="co"># df %&gt;% mutate(model = map(data, .model)) </span>
@@ -439,11 +442,12 @@ Groups: id_sensor [3]
   df
 }</code></pre></div>
 <ul>
-<li>the purrr functions <code>safely()</code> and <code>possibly()</code> are <strong>very</strong> interesting, I think they could be useful outside of purrr as a friendlier way to do error-handling.</li>
+<li><p>for a given model-function and a given (weird) data-frame, return a modified version of that data-frame with a column <code>model</code>, which is the model-function applied to each element of the data-frame’s <code>data</code> column (which is itself a list of data-frames)</p></li>
+<li><p>the purrr functions <code>safely()</code> and <code>possibly()</code> are <strong>very</strong> interesting. I think they could be useful outside of purrr as a friendlier way to do error-handling.</p></li>
 </ul>
 </div>
-<div id="step-map_df-to-build-the-models" class="slide section level2">
-<h1>Step: <code>map_df()</code> to build the models</h1>
+<div id="step-map_df-to-define-the-outer-loop" class="slide section level2">
+<h1>Step: <code>map_df()</code> to define the “outer” loop</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_nested_new &lt;-
 <span class="st">  </span>list_model %&gt;%
 <span class="st">  </span><span class="kw">map_df</span>(fn_model, delta_nested, <span class="dt">.id =</span> <span class="st">&quot;id_model&quot;</span>) %&gt;%
@@ -462,8 +466,9 @@ Groups: id_sensor [3]
 8 semi_infinite_convection         b &lt;tbl_df [327,2]&gt;   &lt;NULL&gt;
 9 semi_infinite_convection         c &lt;tbl_df [327,2]&gt;   &lt;NULL&gt;</code></pre>
 <ul>
+<li><p>for each element of a list of model-functions, run the inner-loop function, and row-bind the results into a data-frame</p></li>
 <li>we want to discard the rows where the model failed</li>
-<li>we also want to investigate why they failed, but that’s a different talk</li>
+<li><p>we also want to investigate why they failed, but that’s a different talk</p></li>
 </ul>
 </div>
 <div id="step-map-to-identify-the-null-models" class="slide section level2">
@@ -586,7 +591,7 @@ Groups: id_sensor [3]
 </div>
 <div id="using-broom-package-to-look-at-model-statistics" class="slide section level2">
 <h1>Using broom package to look at model-statistics</h1>
-<p>The <code>tidy()</code> function extracts statistics from the model</p>
+<p>The <code>tidy()</code> function extracts statistics from a model</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model_parameters &lt;-<span class="st"> </span>
 <span class="st">  </span>model_nested_new %&gt;%
 <span class="st">  </span><span class="kw">select</span>(id_model, id_sensor, model) %&gt;%
