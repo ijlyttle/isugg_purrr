@@ -22,9 +22,13 @@ library("purrr")
 library("broom")
 ```
 
+
+
 ## Motivation
 
-We have a dataset: 
+As you know, purrr is a recent package from Hadley Wickham, focused on lists and functional programming, like dplyr is focused on data-frames. 
+
+I figure a good way to learn a new package is to try to solve a problem, so we have a dataset: 
 
 - you can [view](https://github.com/ijlyttle/isugg_purrr/blob/gh-pages/temperature.csv) or [download](http://ijlyttle.github.io/isugg_purrr/temperature.csv)
 
@@ -88,7 +92,7 @@ temperature_tall %>%
 
 **`delta_time`** $\Delta t$ 
 
-chance in time since event started, s
+change in time since event started, s
 
 **`delta_temperature`**: $\Delta T$
 
@@ -418,3 +422,9 @@ model_summary <-
 - this is just a smalll part of purrr
 - there seem to be parallels between `tidyr::nest()/purrr::map()` and `dplyr::group_by()/dplyr::do()`
     - to my mind, the purrr framework is more understandable
+    
+References from Hadley:
+
+- [purrr 0.1.0 announcement](http://blog.rstudio.org/2015/09/29/purrr-0-1-0/)
+- [purrr 0.2.0 announcement](http://blog.rstudio.org/2016/01/06/purrr-0-2-0/)
+- [chapter from Garrett Grolemund and Hadley's forthcoming book](http://r4ds.had.co.nz/iteration.html)  

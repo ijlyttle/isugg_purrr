@@ -70,7 +70,8 @@ Ian Lyttle, Schneider Electric
 </div>
 <div id="motivation" class="slide section level2">
 <h1>Motivation</h1>
-<p>We have a dataset:</p>
+<p>As you know, purrr is a recent package from Hadley Wickham, focused on lists and functional programming, like dplyr is focused on data-frames.</p>
+<p>I figure a good way to learn a new package is to try to solve a problem, so we have a dataset:</p>
 <ul>
 <li><p>you can <a href="https://github.com/ijlyttle/isugg_purrr/blob/gh-pages/temperature.csv">view</a> or <a href="http://ijlyttle.github.io/isugg_purrr/temperature.csv">download</a></p></li>
 <li><p>you can download the <a href="http://ijlyttle.github.io/isugg_purrr/presentation.Rmd">source</a> of this presentation</p></li>
@@ -164,7 +165,7 @@ Ian Lyttle, Schneider Electric
 <div id="rearrange-a-bit-more" class="slide section level2">
 <h1>Rearrange a bit more</h1>
 <p><strong><code>delta_time</code></strong> <span class="math inline">\(\Delta t\)</span></p>
-<p>chance in time since event started, s</p>
+<p>change in time since event started, s</p>
 <p><strong><code>delta_temperature</code></strong>: <span class="math inline">\(\Delta T\)</span></p>
 <p>change in temperature since event started, °C</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">delta &lt;-<span class="st"> </span>
@@ -637,6 +638,12 @@ Variables not shown: std.error (dbl), statistic (dbl), p.value (dbl)</code></pre
 <ul>
 <li>to my mind, the purrr framework is more understandable</li>
 </ul></li>
+</ul>
+<p>References from Hadley:</p>
+<ul>
+<li><a href="http://blog.rstudio.org/2015/09/29/purrr-0-1-0/">purrr 0.1.0 announcement</a></li>
+<li><a href="http://blog.rstudio.org/2016/01/06/purrr-0-2-0/">purrr 0.2.0 announcement</a></li>
+<li><a href="http://r4ds.had.co.nz/iteration.html">chapter from Garrett Grolemund and Hadley’s forthcoming book</a></li>
 </ul>
 </div>
 
