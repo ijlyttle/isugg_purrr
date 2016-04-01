@@ -1,5 +1,5 @@
 ---
-title: "Using purrr: weird data-frames - http://ijlyttle.github.io/isugg_purrr/presentation.html - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
+title: "Using purrr: one weird trick (data-frames with list columns) that can make your life easier - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
 author: "Ian Lyttle, Schneider Electric"
 date: "March 31, 2016"
 output: slidy_presentation
