@@ -52,7 +52,7 @@ temperature_wide <-
   print()
 ```
 
-## Is `temperarure_wide` "tidy"?
+## Is `temperature_wide` "tidy"?
 
 ```{r is_tidy, echo=FALSE}
 print(temperature_wide)
