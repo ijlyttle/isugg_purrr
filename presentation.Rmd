@@ -1,7 +1,7 @@
 ---
 title: "Using purrr: one weird trick (data-frames with list columns) that can make your life easier - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
 author: "Ian Lyttle, Schneider Electric"
-date: "March 31, 2016"
+date: "April, 2016"
 output: slidy_presentation
 ---
 
@@ -396,6 +396,25 @@ predict_tall <-
 predict_tall %>%
   ggplot(aes(x = delta_time, y = delta_temperature)) +
   geom_line(aes(color = id_sensor, linetype = type)) +
+  facet_grid(id_model ~ .)
+```
+
+## Let's get the residuals
+
+```{r}
+resid <-
+  model_nested_new %>%
+  mutate(resid = map(model, resid)) %>%
+  unnest(data, resid) %>%
+  print()
+```
+
+## And visualize them
+
+```{r}
+resid %>%
+  ggplot(aes(x = delta_time, y = resid)) +
+  geom_line(aes(color = id_sensor)) +
   facet_grid(id_model ~ .)
 ```
 
