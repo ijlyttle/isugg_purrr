@@ -1,5 +1,5 @@
 ---
-title: "Using purrr: one weird trick (data-frames with list columns) that can make your life easier - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
+title: "Using purrr: one weird trick (data-frames with list columns) to make evaluating models easier - [source](http://ijlyttle.github.io/isugg_purrr/presentation.Rmd)"
 author: "Ian Lyttle, Schneider Electric"
 date: "April, 2016"
 output: slidy_presentation
@@ -21,8 +21,6 @@ library("ggplot2")
 library("purrr")
 library("broom")
 ```
-
-
 
 ## Motivation
 
