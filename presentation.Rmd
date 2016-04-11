@@ -80,7 +80,7 @@ temperature_tall <-
   print()
 ```
 
-## Now, it's easier to visulaize
+## Now, it's easier to visualize
 
 ```{r}
 temperature_tall %>%
@@ -447,6 +447,7 @@ model_summary <-
 - this is just a smalll part of purrr
 - there seem to be parallels between `tidyr::nest()/purrr::map()` and `dplyr::group_by()/dplyr::do()`
     - to my mind, the purrr framework is more understandable
+    - update tweet from [Hadley](https://twitter.com/hadleywickham/status/719542847045636096)
     
 References from Hadley:
 

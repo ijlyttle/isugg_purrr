@@ -154,8 +154,8 @@ Ian Lyttle, Schneider Electric
 10 2015-11-13 06:11:01         a     115.446
 ..                 ...       ...         ...</code></pre>
 </div>
-<div id="now-its-easier-to-visulaize" class="slide section level2">
-<h1>Now, it’s easier to visulaize</h1>
+<div id="now-its-easier-to-visualize" class="slide section level2">
+<h1>Now, it’s easier to visualize</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">temperature_tall %&gt;%
 <span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> instant, <span class="dt">y =</span> temperature, <span class="dt">color =</span> id_sensor)) +
 <span class="st">  </span><span class="kw">geom_line</span>()</code></pre></div>
@@ -672,6 +672,7 @@ Variables not shown: std.error (dbl), statistic (dbl), p.value (dbl)</code></pre
 <li>there seem to be parallels between <code>tidyr::nest()/purrr::map()</code> and <code>dplyr::group_by()/dplyr::do()</code>
 <ul>
 <li>to my mind, the purrr framework is more understandable</li>
+<li>update tweet from <a href="https://twitter.com/hadleywickham/status/719542847045636096">Hadley</a></li>
 </ul></li>
 </ul>
 <p>References from Hadley:</p>
